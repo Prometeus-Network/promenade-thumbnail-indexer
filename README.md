@@ -1,3 +1,3 @@
-# Thumbnail Indexer for Fantom Artion Marketplace
+# Thumbnail Indexer for Fantom Promenade Marketplace
 
 Retrieving and indexing thumbnails of NFTs deployed in Fantom Opera network
