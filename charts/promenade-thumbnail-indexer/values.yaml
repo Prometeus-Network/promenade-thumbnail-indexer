@@ -85,7 +85,7 @@ affinity: {}
 
 envFrom:
   - secretRef:
-      name: promenade-thumbnail-indexer
+      name: promenade-thumbnail-indexer-secret
   - secretRef:
       name: promenade-shared-secret
   - configMapRef:
