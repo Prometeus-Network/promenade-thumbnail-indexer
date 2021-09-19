@@ -1,5 +1,6 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
+const healthcheck = require('./healthcheck')
 
 require('./models/nftitems')
 
@@ -12,5 +13,6 @@ const db = mongoose.connection
 db.on('error', console.error.bind(console, 'connection error:'))
 db.once('open', async () => {
   console.log('artion image compressor has been connected to the db server')
+  healthcheck();
   compress()
 })
