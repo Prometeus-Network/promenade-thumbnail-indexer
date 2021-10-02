@@ -12,11 +12,9 @@ const gifResize = require('@gumlet/gif-resize')
 const mongoose = require('mongoose')
 const NFTITEM = mongoose.model('NFTITEM')
 const uploadToS3 = require('./s3')
+const { v4: uuidv4 } = require('uuid');
 
-const generateFileName = () => {
-  let fileName = new Date().getTime().toString()
-  return fileName
-}
+const generateFileName = () => uuidv4();
 
 const uploadImageToInstance = async (body, extension, nftItem) => {
   let fileName = generateFileName()
