@@ -11,6 +11,7 @@ const fs = require('fs')
 const gifResize = require('@gumlet/gif-resize')
 const mongoose = require('mongoose')
 const NFTITEM = mongoose.model('NFTITEM')
+const uploadToS3 = require('./s3')
 
 const generateFileName = () => {
   let fileName = new Date().getTime().toString()
@@ -19,9 +20,9 @@ const generateFileName = () => {
 
 const uploadImageToInstance = async (body, extension, nftItem) => {
   let fileName = generateFileName()
-  let key = `${fileName}.${extension}`
+  let key = `nft-thumbnails/${fileName}.${extension}`
   try {
-    await fs.writeFileSync(`thumb-image/${key}`, body)
+    await uploadToS3(key, body)
     nftItem.thumbnailPath = key
     await nftItem.save()
   } catch (error) {
@@ -185,7 +186,7 @@ const getThumbnailImageFromURL = async (imgPath) => {
         width: 200
       };
       let fileName = generateFileName()
-      let key = `thumb-image/${fileName}.gif`
+      let key = `nft-thumbnails/${fileName}.gif`
       try {
         gify(imgPath, key, opts, function(err){
           if (err) throw err;
@@ -258,20 +259,20 @@ const compressNFTImage = async () => {
                 }
                 if (body) {
                   let fileName = generateFileName()
-                  let key = `thumb-image/${fileName}.gif`
+                  let key = `nft-thumbnails/${fileName}.gif`
                   try {
                     const gifRes = await gifResize({
                       width: 200
                     })(body);
-                    fs.writeFileSync(key, gifRes);
-                    nftItem.thumbnailPath = `${fileName}.gif`
+                    await uploadToS3(key, gifRes);
+                    nftItem.thumbnailPath = key
                     nftItem.contentType = 'gif'
                     await nftItem.save()
                   } catch (error) {
                     console.log('-----------------------');
                     console.log(error);
-                    fs.writeFileSync(key, body);
-                    nftItem.thumbnailPath = `${fileName}.gif`
+                    await uploadToS3(key, body);
+                    nftItem.thumbnailPath = key
                     nftItem.contentType = 'gif'
                     await nftItem.save()
                   }
