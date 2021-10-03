@@ -16,6 +16,8 @@ const { v4: uuidv4 } = require('uuid');
 
 const generateFileName = () => uuidv4();
 
+const log = (...args) => console.log(`[${(new Date).toUTCString()}] `, ...args)
+
 const uploadImageToInstance = async (body, extension, nftItem) => {
   let fileName = generateFileName()
   let key = `nft-thumbnails/${fileName}.${extension}`
@@ -24,8 +26,8 @@ const uploadImageToInstance = async (body, extension, nftItem) => {
     nftItem.thumbnailPath = key
     await nftItem.save()
   } catch (error) {
-    console.log(error)
-    console.log('upload failed')
+    log(error)
+    log('upload failed')
   }
 }
 
@@ -54,7 +56,7 @@ const resizeBase64Image = async (source, limit = 200) => {
       'base64',
     )
   } catch (err) {
-    console.log('resize failed')
+    log('resize failed')
     return null
   }
 }
@@ -77,7 +79,7 @@ const resizeImageFromURL = (url) => {
         }
       })
     } catch (err) {
-      console.log('resize from url failed')
+      log('resize from url failed')
       reject(err)
     }
   })
@@ -91,7 +93,7 @@ const extractExtension = async (imgURL) => {
       })
     }
   } catch (error) {
-    console.log('cannot xtract xtension')
+    log('cannot xtract xtension')
     return new Promise(async (resolve, reject) => {
       resolve('non-image')
     })
@@ -144,20 +146,20 @@ const extractExtension = async (imgURL) => {
         });
         response.on('error', (err) => {
           response.destroy();
-          console.log('promise error', err);
+          log('promise error', err);
           resolve('non-image');
         });
       })
       .on("timeout", () => {
-        console.log('promise timeout');
+        log('promise timeout');
         resolve('non-image');
       })
       .on("abort", () => {
-        console.log('promise aborted');
+        log('promise aborted');
         resolve('non-image');
       })
     } catch (error) {
-      console.log('promise error')
+      log('promise error')
       resolve('non-image')
     }
   })
@@ -203,7 +205,7 @@ const getThumbnailImageFromURL = async (imgPath) => {
       }
     }
   } catch (error) {
-    console.log('cannot get thumbnail from url\n', error)
+    log('cannot get thumbnail from url\n', error)
     try {
       const buffer = await resizeImageFromURL(imgPath)
       let fileType = await FileType.fromBuffer(buffer)
@@ -213,7 +215,7 @@ const getThumbnailImageFromURL = async (imgPath) => {
         return [3, buffer, 'jpg']
       }
     } catch (err) {
-      console.log('no file type')
+      log('no file type')
       return [4, null]
     }
   }
@@ -226,6 +228,7 @@ const compressNFTImage = async () => {
   if (nftArr && nftArr.length > 0) {
     let nftItem = nftArr[0];
     let tokenURI = nftItem.tokenURI
+    log('Processing', tokenURI)
   
     let timeoutInterval = 1000;
     if (tokenURI && tokenURI.length > 0) {
@@ -247,7 +250,7 @@ const compressNFTImage = async () => {
               timeoutInterval = 0;
               request.get(image, async function (err, res, body) {
                 if (!body) {
-                  console.log('gif image load failed');
+                  log('gif image load failed');
                   nftItem.thumbnailPath = '.'
                   nftItem.contentType = 'gif'
                   await nftItem.save()
@@ -267,8 +270,8 @@ const compressNFTImage = async () => {
                     nftItem.contentType = 'gif'
                     await nftItem.save()
                   } catch (error) {
-                    console.log('-----------------------');
-                    console.log(error);
+                    log('-----------------------');
+                    log(error);
                     await uploadToS3(key, body);
                     nftItem.thumbnailPath = key
                     nftItem.contentType = 'gif'
