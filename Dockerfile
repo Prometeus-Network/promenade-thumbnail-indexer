@@ -21,7 +21,8 @@ RUN apk --update --no-cache \
     libjpeg-turbo-dev \
     libjpeg-turbo-utils \
     gifsicle \
-    optipng
+    optipng \
+    ffmpeg
 RUN yarn --frozen-lockfile
 CMD yarn start
 
